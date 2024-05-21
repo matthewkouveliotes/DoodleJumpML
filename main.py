@@ -16,9 +16,10 @@
 	You should have received a copy of the GNU Affero General Public License
 	along with Pygame-DoodleJump. If not, see <https://www.gnu.org/licenses/>.
 """
+import math
 
-
-import pygame, sys
+import keras
+import pygame, sys, tensorflow
 
 from singleton import Singleton
 from camera import Camera
@@ -27,7 +28,7 @@ from level import Level
 import settings as config
 
 
-
+global distanceToPlatforms
 class Game(Singleton):
 	"""
 	A class to represent the game.
@@ -89,6 +90,7 @@ class Game(Singleton):
 			self.player.handle_event(event)
 
 
+
 	def _update_loop(self):
 		# ----------- Update -----------
 		self.player.update()
@@ -110,11 +112,23 @@ class Game(Singleton):
 
 		# User Interface
 		if self.player.dead:
-			self.window.blit(self.gameover_txt,self.gameover_rect)# gameover txt
+			self.reset()
 		self.window.blit(self.score_txt, self.score_pos)# score txt
+		distances = []
+		for platform in self.lvl.platforms:
+			playerX = self.player.rect.x
+			playerY = self.player.rect.y - self.camera.state.topleft[1]
+			platformX = platform.rect.x
+			platformY = platform.rect.y - self.camera.state.topleft[1]
+			if platformY < 0:
+				continue
+			pygame.draw.line(self.window, pygame.Color("black"), pygame.math.Vector2(playerX, playerY), pygame.math.Vector2(platformX, platformY))
+
+			distances.append(math.sqrt((platformX - playerX)**2 + (platformY - playerY)**2))
 
 		pygame.display.update()# window update
 		self.clock.tick(config.FPS)# max loop/s
+		print(distances)
 
 
 	def run(self):

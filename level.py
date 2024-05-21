@@ -57,7 +57,6 @@ class Bonus(Sprite):
 
 
 
-
 class Platform(Sprite):
 	"""
 	A class to represent a platform.
